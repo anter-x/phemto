@@ -4,6 +4,7 @@ namespace phemto;
 use phemto\exception\CannotDetermineImplementation;
 use phemto\exception\MissingDependency;
 use phemto\repository\ClassRepository;
+use phemto\lifecycle\Factory;
 
 /**
  * Forward facing api / dependency container.
@@ -96,10 +97,14 @@ class Phemto
 		return $this->top->call($instance, $method);
 	}
 
-	function pickFactory($type, $candidates)
-	{
-		throw new CannotDetermineImplementation($type);
-	}
+	public function pickFactory($type, $candidates)
+    {
+        if (count($candidates) == 1) {
+            return new Factory($candidates[0]);
+        }
+
+        throw new CannotDetermineImplementation($type);
+    }
 
 	function settersFor($class)
 	{

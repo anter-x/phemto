@@ -110,14 +110,12 @@ class Context
 	 *
 	 * @throws exception\CannotFindImplementation
 	 */
-	function pickFactory($type, $candidates)
+	public function pickFactory($type, $candidates)
 	{
 		if (count($candidates) == 0) {
 			throw new CannotFindImplementation($type);
 		} elseif ($preference = $this->preferFrom($candidates)) {
 			return $preference;
-		} elseif (count($candidates) == 1) {
-			return new Factory($candidates[0]);
 		} else {
 			return $this->parent->pickFactory($type, $candidates);
 		}
