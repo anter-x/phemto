@@ -3,3 +3,4 @@ composer.lock
 api
 /nbproject/private/
 /nbproject
+/bin

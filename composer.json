@@ -8,15 +8,11 @@
             "email": "adams@benon.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "pear",
-            "url": "pear.phpdoc.org"
-        }
-    ],
+    "config": {
+        "bin-dir": "bin/"
+    },
     "require-dev": {
-		"phpunit/phpunit": "3.7.10",
-        "pear-pear.phpdoc.org/phpDocumentor": "*@dev"
+        "phpunit/phpunit": "~4.7"
     },
     "autoload": {
         "psr-0": {"phemto": "src/"}

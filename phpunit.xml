@@ -4,7 +4,7 @@
 
 	<testsuites>
 		<testsuite name="acceptance">
-			<directory>/home/adams/projects/phemto/test</directory>
+			<directory>test</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>
