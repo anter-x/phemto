@@ -238,7 +238,7 @@ class Context
 		return $this->parent->instantiateParameter($parameter, $nesting);
 	}
 
-	private function determineContext($class)
+	protected function determineContext($class)
 	{
 		foreach ($this->contexts as $type => $context) {
 			if ($this->repository()->isSupertype($class, $type)) {
@@ -246,7 +246,7 @@ class Context
 			}
 		}
 
-		return $this;
+        return $this->parent->determineContext($class);
 	}
 
 	private function invoke($instance, $method, $arguments)

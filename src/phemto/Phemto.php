@@ -145,4 +145,9 @@ class Phemto
 	{
 		return $this->repository;
 	}
+
+    public function determineContext($class)
+	{
+		return $this->top;
+	}
 }
