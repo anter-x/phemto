@@ -2,6 +2,7 @@
 namespace phemto;
 
 use phemto\lifecycle\Value;
+use phemto\lifecycle\ConfigValue;
 
 /**
  * Represents a named variable. Allows injecting dependencies by name
@@ -42,4 +43,11 @@ class Variable
 
 		return $this->context;
 	}
+
+    public function useConfig($string)
+    {
+        $this->preference = new ConfigValue($string);
+
+        return $this->context;
+    }
 }

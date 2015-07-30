@@ -6,7 +6,9 @@ use phemto\exception\MissingDependency;
 use phemto\lifecycle\Factory;
 use phemto\lifecycle\Lifecycle;
 use phemto\lifecycle\Value;
+use phemto\lifecycle\ConfigValue;
 use phemto\repository\ClassRepository;
+
 
 class Context
 {
@@ -207,7 +209,7 @@ class Context
 	 * @param $nesting
 	 * @return mixed|Value
 	 */
-	private function instantiateParameter($parameter, $nesting)
+	public function instantiateParameter($parameter, $nesting)
 	{
 		$hint = null;
 		try {
@@ -220,7 +222,10 @@ class Context
 			} elseif (isset($this->variables[$parameter->getName()])) {
 				if ($this->variables[$parameter->getName()]->preference instanceof Lifecycle) {
 					return $this->variables[$parameter->getName()]->preference->instantiate($this, $nesting);
-				} elseif (!is_string($this->variables[$parameter->getName()]->preference)) {
+				} elseif ($this->variables[$parameter->getName()]->preference instanceof ConfigValue) {
+                    return $this->instantiateParameter($this->variables[$parameter->getName()]->preference, $nesting)
+                        ->get($this->variables[$parameter->getName()]->preference->name);
+                } elseif (!is_string($this->variables[$parameter->getName()]->preference)) {
 					return $this->variables[$parameter->getName()]->preference;
 				}
 
