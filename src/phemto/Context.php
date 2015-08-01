@@ -55,12 +55,21 @@ class Context
 		$this->registry[$lifecycle->class] = $lifecycle;
 	}
 
-	function forVariable($name)
+	/**
+     * @param string $name
+     * @return Variable
+     */
+    function forVariable($name)
 	{
 		return $this->variables[$name] = new Variable($this);
 	}
 
-	function whenCreating($type, $graph = null)
+	/**
+     * @param string $type
+     * @param string $graph
+     * @return self
+     */
+    function whenCreating($type, $graph = null)
 	{
         $graph = $graph ?: 'default';
         
@@ -71,7 +80,11 @@ class Context
 		return $this->contexts[$graph][$type];
 	}
 
-	function forType($type)
+	/**
+     * @param string $type
+     * @return Type
+     */
+    function forType($type)
 	{
 		if (!isset($this->types[$type])) {
 			$this->types[$type] = new Type();

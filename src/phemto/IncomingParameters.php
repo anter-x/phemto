@@ -19,7 +19,10 @@ class IncomingParameters
 		$this->injector = $injector;
 	}
 
-	function with()
+	/**
+     * @return Phemto
+     */
+    function with()
 	{
 		$values = func_get_args();
 		$this->injector->useParameters(array_combine($this->names, $values));

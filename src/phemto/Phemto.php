@@ -48,7 +48,10 @@ class Phemto
 		return $this->top->whenCreating($type, $graph);
 	}
 
-	/**  */
+	/**
+     * @param string $type
+     * @return Type
+     */
 	function forType($type)
 	{
 		return $this->top->forType($type);
@@ -64,7 +67,10 @@ class Phemto
 		return new IncomingParameters($names, $this);
 	}
 
-	function with()
+	/**
+     * @return self
+     */
+    function with()
 	{
 		$values = func_get_args();
 		$this->unnamed_parameters = array_merge($this->unnamed_parameters, $values);

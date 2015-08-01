@@ -26,7 +26,11 @@ class Variable
 		$this->context = $context;
 	}
 
-	function willUse($preference)
+	/**
+     * @param mixed $preference
+     * @return Context
+     */
+    function willUse($preference)
 	{
 		$this->preference = $preference;
 
@@ -34,8 +38,8 @@ class Variable
 	}
 
 	/**
-	 * @param $string
-	 * @return Value
+	 * @param string $string
+	 * @return Context
 	 */
 	function useString($string)
 	{
@@ -44,6 +48,10 @@ class Variable
 		return $this->context;
 	}
 
+    /**
+     * @param string $string
+     * @return Context
+     */
     public function useConfig($string)
     {
         $this->preference = new ConfigValue($string);
