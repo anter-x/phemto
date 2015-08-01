@@ -5,6 +5,7 @@ namespace phemto\acceptance;
 use phemto\Phemto;
 use phemto\lifecycle\Factory;
 use phemto\lifecycle\Reused;
+use phemto\lifecycle\Graph;
 
 
 class CanInstantiateByGraphTest extends \PHPUnit_Framework_TestCase
@@ -150,6 +151,44 @@ class CanInstantiateByGraphTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('second value for default', $object1->dependency->property);
 
         $this->assertSame($object1, $injector->create(FirstClass::class));
+    }
+
+    public function testInstantiateByDifferentGraphsAndHint()
+    {
+        $injector = new Phemto();
+
+        $injector->whenCreating(FirstClass::class, 'graph1')
+            ->forVariable('property')
+            ->useString('value for graph1');
+
+        $injector->willUse(new Graph(SecondClass::class, 'graph2'));
+        // if you use "Graph" factory, you will specify default context
+        $injector->whenCreating(SecondClass::class)
+            ->forVariable('property')
+            ->useString('second value for graph2');
+
+        $object1 = $injector->createGraph(FirstClass::class, 'graph1');
+
+        $this->assertEquals('value for graph1', $object1->property);
+        $this->assertEquals('second value for graph2', $object1->dependency->property);
+    }
+
+    public function testInstantiateByDifferentGraphsAndVariable()
+    {
+        $injector = new Phemto();
+
+        $injector->whenCreating(ThirdClass::class, 'graph1')
+            ->forVariable('dependency')
+            ->willUse(new Graph(SecondClass::class, 'graph2'));
+
+         // if you use "Graph" factory, you will specify default context
+        $injector->whenCreating(SecondClass::class)
+            ->forVariable('property')
+            ->useString('second value for graph2');
+
+        $object1 = $injector->createGraph(ThirdClass::class, 'graph1');
+
+        $this->assertEquals('second value for graph2', $object1->dependency->property);
     }
 }
 
