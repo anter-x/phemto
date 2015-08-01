@@ -8,7 +8,7 @@ use phemto\Context;
  *
  * @package phemto\lifecycle
  */
-class Reused extends Lifecycle
+class Reused extends Factory
 {
 	private $instance = ['default' => null];
 
@@ -17,16 +17,7 @@ class Reused extends Lifecycle
         $graph = $graph ?: 'default';
 
 		if (!isset($this->instance[$graph])) {
-			array_unshift($nesting, $this->class);
-
-			$dependencies = $context->createDependencies(
-				$context->repository()->getConstructorParameters($this->class),
-				$nesting
-			);
-			$this->instance[$graph] = call_user_func_array(
-				array(new \ReflectionClass($this->class), 'newInstance'),
-				$dependencies
-			);
+			$this->instance[$graph] = parent::instantiate($context, $nesting, $graph);
 		}
 
 		return $this->instance[$graph];
