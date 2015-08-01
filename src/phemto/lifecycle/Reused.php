@@ -10,23 +10,25 @@ use phemto\Context;
  */
 class Reused extends Lifecycle
 {
-	private $instance;
+	private $instance = ['default' => null];
 
-	function instantiate(Context $context, $nesting)
+	function instantiate(Context $context, $nesting, $graph = null)
 	{
-		if (!isset($this->instance)) {
+        $graph = $graph ?: 'default';
+
+		if (!isset($this->instance[$graph])) {
 			array_unshift($nesting, $this->class);
 
 			$dependencies = $context->createDependencies(
 				$context->repository()->getConstructorParameters($this->class),
 				$nesting
 			);
-			$this->instance = call_user_func_array(
+			$this->instance[$graph] = call_user_func_array(
 				array(new \ReflectionClass($this->class), 'newInstance'),
 				$dependencies
 			);
 		}
 
-		return $this->instance;
+		return $this->instance[$graph];
 	}
 }

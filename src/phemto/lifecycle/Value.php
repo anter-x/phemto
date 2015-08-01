@@ -20,7 +20,7 @@ class Value extends Lifecycle
 		}
 	}
 
-	function instantiate(Context $context, $nesting)
+	function instantiate(Context $context, $nesting, $graph = null)
 	{
 		return $this->instance;
 	}

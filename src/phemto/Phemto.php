@@ -43,9 +43,9 @@ class Phemto
 	 * @param $type
 	 * @return Context
 	 */
-	function whenCreating($type)
+	function whenCreating($type, $graph = null)
 	{
-		return $this->top->whenCreating($type);
+		return $this->top->whenCreating($type, $graph);
 	}
 
 	/**  */
@@ -84,6 +84,16 @@ class Phemto
         $this->unnamed_parameters = [];
 		return $object;
 	}
+
+    public function createGraph($type, $graph)
+    {
+        $this->repository = new ClassRepository();
+		$object = $this->top->create($type, [], $graph);
+		$this->named_parameters = array();
+        // in case the object didn't instantiate, for example from Value lifecycle
+        $this->unnamed_parameters = [];
+		return $object;
+    }
 
 	/**
 	 * Call a method called $method on the object instance $instance.
@@ -128,7 +138,7 @@ class Phemto
 	 * @return mixed
 	 * @throws exception\MissingDependency
 	 */
-	function instantiateParameter($parameter, $nesting)
+	function instantiateParameter($parameter, $nesting, $graph = null)
 	{
 		if (isset($this->named_parameters[$parameter->getName()])) {
 			return $this->named_parameters[$parameter->getName()];
@@ -147,8 +157,12 @@ class Phemto
 		return $this->repository;
 	}
 
-    public function determineContext($class)
+    public function determineContext($class, $grath = null)
 	{
-		return $this->top;
+        if ($grath == 'default') {
+            return $this->top;
+        } else {
+            return $this->top->determineContext($class, 'default');
+        }
 	}
 }

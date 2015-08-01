@@ -20,7 +20,7 @@ class Sessionable extends Lifecycle
 		$this->slot = $slot ? $slot : $class;
 	}
 
-	function instantiate(Context $context, $nesting)
+	function instantiate(Context $context, $nesting, $graph = null)
 	{
 		@session_start();
 		if (!isset($_SESSION[$this->slot])) {

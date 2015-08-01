@@ -30,7 +30,7 @@ class Context
 	/**
 	 * @var Context[]
 	 */
-	private $contexts = array();
+	private $contexts = ['default' => []];
 	/**
 	 * @var Type[]
 	 */
@@ -60,13 +60,15 @@ class Context
 		return $this->variables[$name] = new Variable($this);
 	}
 
-	function whenCreating($type)
+	function whenCreating($type, $graph = null)
 	{
-		if (!isset($this->contexts[$type])) {
-			$this->contexts[$type] = new Context($this);
+        $graph = $graph ?: 'default';
+        
+		if (!isset($this->contexts[$graph][$type])) {
+			$this->contexts[$graph][$type] = new Context($this);
 		}
 
-		return $this->contexts[$type];
+		return $this->contexts[$graph][$type];
 	}
 
 	function forType($type)
@@ -83,17 +85,17 @@ class Context
 		array_push($this->wrappers, $type);
 	}
 
-	function create($type, $nesting = array())
+	function create($type, $nesting = array(), $graph = null)
 	{
 		$lifecycle = $this->pickFactory($type, $this->repository()->candidatesFor($type));
-		$context = $this->determineContext($lifecycle->class);
+		$context = $this->determineContext($lifecycle->class, $graph);
 
 		try {
 			if ($wrapper = $context->hasWrapper($type, $nesting)) {
 				array_unshift($nesting, $wrapper);
-				return $this->create($wrapper, $nesting);
+				return $this->create($wrapper, $nesting, $graph);
 			}
-			$instance = $lifecycle->instantiate($context, $nesting);
+			$instance = $lifecycle->instantiate($context, $nesting, $graph);
 		} catch (MissingDependency $e) {
 			$e->prependMessage("While creating $type: ");
 			throw $e;
@@ -194,11 +196,11 @@ class Context
 		);
 	}
 
-	function createDependencies($parameters, $nesting)
+	function createDependencies($parameters, $nesting, $graph = null)
 	{
 		$values = array();
 		foreach ($parameters as $parameter) {
-			$values[] = $this->instantiateParameter($parameter, $nesting);
+			$values[] = $this->instantiateParameter($parameter, $nesting, $graph);
 		}
 
 		return $values;
@@ -209,7 +211,7 @@ class Context
 	 * @param $nesting
 	 * @return mixed|Value
 	 */
-	public function instantiateParameter($parameter, $nesting)
+	public function instantiateParameter($parameter, $nesting, $graph = null)
 	{
 		$hint = null;
 		try {
@@ -218,18 +220,20 @@ class Context
 
 		try {
 			if ($hint) {
-				return $this->create($hint->getName(), $nesting);
+				return $this->create($hint->getName(), $nesting, $graph);
 			} elseif (isset($this->variables[$parameter->getName()])) {
-				if ($this->variables[$parameter->getName()]->preference instanceof Lifecycle) {
-					return $this->variables[$parameter->getName()]->preference->instantiate($this, $nesting);
-				} elseif ($this->variables[$parameter->getName()]->preference instanceof ConfigValue) {
-                    return $this->instantiateParameter($this->variables[$parameter->getName()]->preference, $nesting)
-                        ->get($this->variables[$parameter->getName()]->preference->name);
-                } elseif (!is_string($this->variables[$parameter->getName()]->preference)) {
-					return $this->variables[$parameter->getName()]->preference;
+                $preference = $this->variables[$parameter->getName()]->preference;
+				if ($preference instanceof Lifecycle) {
+                    $context = (empty($preference->class)) ? $this : $this->determineContext($preference->class, $graph);
+					return $preference->instantiate($context, $nesting, $graph);
+				} elseif ($preference instanceof ConfigValue) {
+                    return $this->instantiateParameter($preference, $nesting, $graph)
+                        ->get($preference->name);
+                } elseif (!is_string($preference)) {
+					return $preference;
 				}
 
-				return $this->create($this->variables[$parameter->getName()]->preference, $nesting);
+				return $this->create($preference, $nesting, $graph);
 			}
 		} catch (MissingDependency $e) {
 			if($parameter->getClass()) {
@@ -240,18 +244,22 @@ class Context
 			throw $e;
 		}
 
-		return $this->parent->instantiateParameter($parameter, $nesting);
+		return $this->parent->instantiateParameter($parameter, $nesting, $graph);
 	}
 
-	protected function determineContext($class)
+	public function determineContext($class, $graph = null)
 	{
-		foreach ($this->contexts as $type => $context) {
-			if ($this->repository()->isSupertype($class, $type)) {
-				return $context;
-			}
-		}
+        $graph = $graph ?: 'default';
 
-        return $this->parent->determineContext($class);
+        if (isset($this->contexts[$graph])) {
+            foreach ($this->contexts[$graph] as $type => $context) {
+                if ($this->repository()->isSupertype($class, $type)) {
+                    return $context;
+                }
+            }
+        }
+
+        return $this->parent->determineContext($class, $graph);
 	}
 
 	private function invoke($instance, $method, $arguments)

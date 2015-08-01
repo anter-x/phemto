@@ -26,5 +26,5 @@ abstract class Lifecycle
 		}
 	}
 
-	abstract function instantiate(Context $context, $nesting);
+	abstract function instantiate(Context $context, $nesting, $graph = null);
 }
