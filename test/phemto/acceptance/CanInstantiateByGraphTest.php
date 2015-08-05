@@ -162,8 +162,8 @@ class CanInstantiateByGraphTest extends \PHPUnit_Framework_TestCase
             ->useString('value for graph1');
 
         $injector->willUse(new Graph(SecondClass::class, 'graph2'));
-        // if you use "Graph" factory, you will specify default context
-        $injector->whenCreating(SecondClass::class)
+        
+        $injector->whenCreating(SecondClass::class, 'graph2')
             ->forVariable('property')
             ->useString('second value for graph2');
 
@@ -181,8 +181,7 @@ class CanInstantiateByGraphTest extends \PHPUnit_Framework_TestCase
             ->forVariable('dependency')
             ->willUse(new Graph(SecondClass::class, 'graph2'));
 
-         // if you use "Graph" factory, you will specify default context
-        $injector->whenCreating(SecondClass::class)
+        $injector->whenCreating(SecondClass::class, 'graph2')
             ->forVariable('property')
             ->useString('second value for graph2');
 

@@ -17,6 +17,6 @@ class Graph extends Factory
 
     public function instantiate(Context $context, $nesting, $graph = null)
 	{
-        return parent::instantiate($context, $nesting, $this->graph);
+        return parent::instantiate($context->determineContext($this->class, $this->graph), $nesting, $this->graph);
 	}
 }
