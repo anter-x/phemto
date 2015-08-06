@@ -10,16 +10,14 @@ use phemto\Context;
  */
 class Reused extends Factory
 {
-	private $instance = ['default' => null];
+	private $instance;
 
 	function instantiate(Context $context, $nesting, $graph = null)
 	{
-        $graph = $graph ?: 'default';
-
-		if (!isset($this->instance[$graph])) {
-			$this->instance[$graph] = parent::instantiate($context, $nesting, $graph);
+		if (!isset($this->instance)) {
+			$this->instance = parent::instantiate($context, $nesting, $graph);
 		}
 
-		return $this->instance[$graph];
+		return $this->instance;
 	}
 }
