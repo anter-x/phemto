@@ -231,6 +231,24 @@ class CanInstantiateByGraphTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('second value for graph2', $object1->dependency->property);
     }
+
+    public function testInstantiateBySetters()
+    {
+        $injector = new Phemto();
+
+        $injector->forType(WithSetter::class)
+            ->call('setDependency');
+
+        $injector->willUse(new Graph(WithSetter::class, 'graph1'));
+
+        $injector->whenCreating(SecondClass::class, 'graph1')
+            ->forVariable('property')
+            ->useString('second value for graph1');
+
+        $object1 = $injector->createGraph(WithSetter::class, 'graph1');
+        
+        $this->assertEquals('second value for graph1', $object1->dependency->property);
+    }
 }
 
 
@@ -271,5 +289,20 @@ class ThirdClass
     {
         $this->dependency = $dependency;
     }
+}
 
+class WithSetter
+{
+    /**
+     * @var SecondClass
+     */
+    public $dependency;
+
+    /**
+     * @param SecondClass $dependency
+     */
+    public function setDependency(SecondClass $dependency)
+    {
+        $this->dependency = $dependency;
+    }
 }

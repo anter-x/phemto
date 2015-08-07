@@ -113,7 +113,7 @@ class Context
 			$e->prependMessage("While creating $type: ");
 			throw $e;
 		}
-		$this->invokeSetters($context, $nesting, $lifecycle->class, $instance);
+		$this->invokeSetters($context, $nesting, $lifecycle->class, $instance, $graph);
 
 		return $instance;
 	}
@@ -149,7 +149,7 @@ class Context
 		return false;
 	}
 
-	private function invokeSetters(Context $context, $nesting, $class, $instance)
+	private function invokeSetters(Context $context, $nesting, $class, $instance, $graph = null)
 	{
 		foreach ($context->settersFor($class) as $setter) {
 			array_unshift($nesting, $class);
@@ -159,7 +159,8 @@ class Context
 				$setter,
 				$context->createDependencies(
 					$this->repository()->getParameters($class, $setter),
-					$nesting
+					$nesting,
+                    $graph
 				)
 			);
 		}
