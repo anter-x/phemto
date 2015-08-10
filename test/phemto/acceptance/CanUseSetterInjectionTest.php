@@ -4,6 +4,7 @@ namespace phemto\acceptance;
 
 use phemto\Phemto;
 use phemto\lifecycle\Reused;
+use phemto\lifecycle\ListOf;
 
 
 class NotWithoutMe
@@ -44,6 +45,20 @@ class DependencyWithSetter
     }
 }
 
+class SomeClassNeedArray
+{
+    /**
+     * @var DependencyWithSetter[]
+     */
+    public $dependencies;
+
+    public function __construct(array $dependencies)
+    {
+        $this->dependencies = $dependencies;
+    }
+}
+
+
 class CanUseSetterInjectionTest extends \PHPUnit_Framework_TestCase
 {
 	function testCanCallSettersToCompleteInitialisation()
@@ -58,7 +73,7 @@ class CanUseSetterInjectionTest extends \PHPUnit_Framework_TestCase
 		);
 	}
 
-    public function testCanCallSettersForDependecy()
+    public function testCanCallSettersForDependecyWhenReused()
     {
         $injector = new Phemto();
 
@@ -72,5 +87,21 @@ class CanUseSetterInjectionTest extends \PHPUnit_Framework_TestCase
         $object = $injector->create(SomeRegularClass::class);
 
         $this->assertInstanceOf(NotWithoutMe::class, $object->dependency->property);
+    }
+
+    public function testCanCallSettersForDependecyWhenListOfUsed()
+    {
+        $injector = new Phemto();
+
+        $injector->whenCreating(SomeClassNeedArray::class)
+            ->forVariable('dependencies')
+            ->willUse(new ListOf(new Reused(DependencyWithSetter::class)));
+
+        $injector->forType(DependencyWithSetter::class)
+            ->call('setProperty');
+
+        $object = $injector->create(SomeClassNeedArray::class);
+
+        $this->assertInstanceOf(NotWithoutMe::class, $object->dependencies[0]->property);
     }
 }

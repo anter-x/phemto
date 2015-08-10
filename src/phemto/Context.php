@@ -149,7 +149,7 @@ class Context
 		return false;
 	}
 
-	private function invokeSetters(Context $context, $nesting, $class, $instance, $graph = null)
+	public function invokeSetters(Context $context, $nesting, $class, $instance, $graph = null)
 	{
 		foreach ($context->settersFor($class) as $setter) {
 			array_unshift($nesting, $class);
