@@ -239,7 +239,11 @@ class Context
                 $preference = $this->variables[$parameter->getName()]->preference;
 				if ($preference instanceof Lifecycle) {
                     $context = (empty($preference->class)) ? $this : $this->determineContext($preference->class, $graph);
-					return $preference->instantiate($context, $nesting, $graph);
+					$instance = $preference->instantiate($context, $nesting, $graph);
+                    if ($preference instanceof Factory) {
+                        $this->invokeSetters($context, $nesting, $preference->class, $instance, $graph);
+                    }
+                    return $instance;
 				} elseif ($preference instanceof ConfigValue) {
                     return $this->instantiateParameter($preference, $nesting, $graph)
                         ->get($preference->name);
