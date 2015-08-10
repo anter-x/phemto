@@ -21,11 +21,7 @@ class ListOf extends Lifecycle
         foreach ($this->preferences as $preference) {
             if ($preference instanceof Lifecycle) {
                 $preferContext = (empty($preference->class)) ? $context : $context->determineContext($preference->class, $graph);
-                $instance = $preference->instantiate($preferContext, $nesting, $graph);
-                if ($preference instanceof Factory) {
-                    $preferContext->invokeSetters($preferContext, $nesting, $preference->class, $instance, $graph);
-                }
-                $instances[] = $instance;
+                $instances[] = $preference->instantiate($preferContext, $nesting, $graph);
             } elseif (!is_string($preference)) {
                 $instances[] = $preference;
             } else {

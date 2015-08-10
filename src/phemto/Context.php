@@ -108,14 +108,11 @@ class Context
 				array_unshift($nesting, $wrapper);
 				return $this->create($wrapper, $nesting, $graph);
 			}
-			$instance = $lifecycle->instantiate($context, $nesting, $graph);
+			return $lifecycle->instantiate($context, $nesting, $graph);
 		} catch (MissingDependency $e) {
 			$e->prependMessage("While creating $type: ");
 			throw $e;
 		}
-		$this->invokeSetters($context, $nesting, $lifecycle->class, $instance, $graph);
-
-		return $instance;
 	}
 
 	/**
@@ -239,11 +236,7 @@ class Context
                 $preference = $this->variables[$parameter->getName()]->preference;
 				if ($preference instanceof Lifecycle) {
                     $context = (empty($preference->class)) ? $this : $this->determineContext($preference->class, $graph);
-					$instance = $preference->instantiate($context, $nesting, $graph);
-                    if ($preference instanceof Factory) {
-                        $this->invokeSetters($context, $nesting, $preference->class, $instance, $graph);
-                    }
-                    return $instance;
+					return $preference->instantiate($context, $nesting, $graph);
 				} elseif ($preference instanceof ConfigValue) {
                     return $this->instantiateParameter($preference, $nesting, $graph)
                         ->get($preference->name);

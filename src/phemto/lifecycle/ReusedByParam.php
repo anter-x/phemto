@@ -29,10 +29,14 @@ class ReusedByParam extends Lifecycle
 
         if (!isset($this->instances[$graph][$hash])) {
             $dependencies = array_values($this->createRestDependencies($context, $parameters, $values, $nesting, $graph));
-            $this->instances[$graph][$hash] = call_user_func_array(
+             $instance = call_user_func_array(
                 array(new \ReflectionClass($this->class), 'newInstance'),
                 $dependencies
             );
+
+            $context->invokeSetters($context, $nesting, $this->class, $instance, $graph);
+
+            $this->instances[$graph][$hash] = $instance;
         }
 
         return $this->instances[$graph][$hash];
